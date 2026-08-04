@@ -12,16 +12,9 @@
 #
 # Una variable es...
 #
-# Busca los capítulos y separa el texto que está
-# dentro de cada capítulo en una lista de diccionarios.
-#
-# Importante:
-# Los PDF pueden contener un índice donde aparecen
-# los nombres de los capítulos antes del contenido real.
-#
-# Por eso no debemos tomar automáticamente la primera
-# aparición de "Capítulo uno", ya que podría pertenecer
-# al índice.
+# Busca "Capítulo uno", "Capítulo dos", etc.
+# y separa el texto que está en cada capítulo
+# en una lista de diccionarios.
 #
 # Ejemplo:
 #
@@ -36,60 +29,53 @@
 #     }
 # ]
 ###
-
 import re
 
 
-def detectar_secciones(texto):
-    secciones = []
+NUMEROS_CAPITULOS = {
+    "UNO": 1,
+    "DOS": 2,
+    "TRES": 3,
+    "CUATRO": 4,
+    "CINCO": 5,
+    "SEIS": 6,
+    "SIETE": 7,
+    "OCHO": 8,
+    "NUEVE": 9,
+    "DIEZ": 10,
+}
 
-    patron = (
-        r"(?im)^Capítulo\s+"
-        r"(uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)"
-        r"\s*$"
+
+def detectar_secciones(texto):
+
+    patron = re.compile(
+        r"(?im)^CAPÍTULO\s+"
+        r"(UNO|DOS|TRES|CUATRO|CINCO|SEIS|SIETE|OCHO|NUEVE|DIEZ)"
+        r"\.\s*(.+)$"
     )
 
-    coincidencias = list(re.finditer(patron, texto))
+    coincidencias = list(patron.finditer(texto))
 
-    # Por ahora mostramos las coincidencias encontradas
-    # para comprobar cómo se comporta el PDF.
-    print("========== COINCIDENCIAS ENCONTRADAS ==========")
-
-    for coincidencia in coincidencias:
-        print(
-            repr(coincidencia.group()),
-            "posición:",
-            coincidencia.start()
-        )
-
-    # Si no encontramos capítulos, devolvemos una lista vacía.
-    if not coincidencias:
-        return secciones
-
-    # La primera coincidencia puede pertenecer al índice.
-    # Por eso buscamos una segunda aparición de "Capítulo uno"
-    # para identificar el comienzo real del contenido.
-    #
-    # En este PDF concreto, sin embargo, el contenido del
-    # capítulo uno no contiene un encabezado "Capítulo uno"
-    # limpio, por lo que esta lógica todavía debe ajustarse
-    # según la estructura real del PDF.
+    secciones = []
 
     for i, coincidencia in enumerate(coincidencias):
 
-        titulo = coincidencia.group().strip()
+        numero_texto = coincidencia.group(1).upper()
+        titulo = coincidencia.group(2).strip()
 
         inicio = coincidencia.end()
 
         if i + 1 < len(coincidencias):
             fin = coincidencias[i + 1].start()
-            contenido = texto[inicio:fin].strip()
         else:
-            contenido = texto[inicio:].strip()
+            fin = len(texto)
+
+        contenido = texto[inicio:fin].strip()
 
         secciones.append({
+            "numero": NUMEROS_CAPITULOS[numero_texto],
             "titulo": titulo,
-            "contenido": contenido
+            "contenido": contenido,
         })
 
     return secciones
