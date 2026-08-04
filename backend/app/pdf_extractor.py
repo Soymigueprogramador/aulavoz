@@ -11,7 +11,7 @@ def extraer_texto(ruta_pdf):
 
     # Iteramos para sacar el texto de las paginas del PDF
     for pagina in documento:
-        texto =pagina.get_text()
+        texto += pagina.get_text()
 
     # Cerramos el PDF
     documento.close()

@@ -2,7 +2,7 @@
 from app.pdf_extractor import extraer_texto
 
 # Le indicamos la ruta de donde trae el PDF
-ruta_pdf = "../tests/pdfs/Guía de Ejercicios 1 [maxiprograma.com].pdf"
+ruta_pdf = "../tests/pdfs/Tiende_tu_cama_William_H_McRaven.pdf"
 
 # Extraemos el texto del PDF
 texto = extraer_texto(ruta_pdf)

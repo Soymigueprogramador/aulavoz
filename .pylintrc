@@ -1,0 +1,15 @@
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,
+    invalid-name,
+    trailing-whitespace,
+    too-few-public-methods,
+    no-member,
+    too-many-arguments,
+    line-too-long,           # <--- Desactiva el aviso de línea larga
+    missing-final-newline    # <--- Desactiva el aviso de falta de línea al final
+
+[FORMAT]
+# Ya que desactivaste el aviso arriba, este valor ya no causará alertas,
+# pero puedes subirlo si quieres que el formateador automático lo use.
+max-line-length=100
