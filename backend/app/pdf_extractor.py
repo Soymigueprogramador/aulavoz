@@ -8,17 +8,18 @@ def extraer_texto_pagina(pagina):
     """
     Extrae el texto de una página PDF.
 
-    Primero intenta extraer texto directamente con PyMuPDF.
-    Si la página no contiene texto, utiliza OCR con Tesseract.
+    Primero intenta extracción normal con PyMuPDF.
+    Si solamente encuentra el número de página
+    o no encuentra texto útil, utiliza OCR.
     """
 
-    # 1. Intentar extracción normal
-    texto = pagina.get_text()
+    texto = pagina.get_text().strip()
 
-    if texto.strip():
+    # Si encontramos texto real, lo utilizamos.
+    if texto and not texto.isdigit():
         return texto
 
-    # 2. Si no hay texto, utilizar OCR
+    # Si no hay texto útil, hacemos OCR.
     pix = pagina.get_pixmap(dpi=300)
 
     imagen_bytes = pix.tobytes("png")
@@ -30,25 +31,45 @@ def extraer_texto_pagina(pagina):
         lang="spa"
     )
 
-    return texto_ocr
+    return texto_ocr.strip()
 
 
-def extraer_texto_pdf(pdf_path):
+def extraer_paginas_pdf(pdf_path):
     """
-    Extrae el texto completo de un PDF.
-
-    Utiliza extracción normal cuando es posible
-    y OCR cuando una página no contiene texto.
+    Extrae el texto de todas las páginas del PDF
+    conservando el número de página.
     """
 
     doc = fitz.open(pdf_path)
 
-    textos = []
+    paginas = []
 
-    for pagina in doc:
+    for numero, pagina in enumerate(doc, start=1):
+
         texto = extraer_texto_pagina(pagina)
-        textos.append(texto)
+
+        paginas.append({
+            "pagina": numero,
+            "texto": texto,
+        })
 
     doc.close()
+
+    return paginas
+
+
+def extraer_texto_pdf(pdf_path):
+    """
+    Mantiene compatibilidad con el extractor anterior.
+
+    Devuelve todo el texto del PDF como un único string.
+    """
+
+    paginas = extraer_paginas_pdf(pdf_path)
+
+    textos = [
+        pagina["texto"]
+        for pagina in paginas
+    ]
 
     return "\n".join(textos)
