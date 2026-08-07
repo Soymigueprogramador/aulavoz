@@ -1,15 +1,10 @@
-# Importamos la libreria FastAPI
+# Importacion de librerias y archivos necesarios
 from fastapi import FastAPI
+from app.api import router
 
-# Variable para inicializar el servidor
-app = FastAPI()
+app = FastAPI(
+    title="AulaVoz API",
+    version="1.0.0"
+)
 
-# Indicamos la ruta de acceso
-@app.get("/")
-
-# Funcion para iniciar el servidor
-def inicio():
-# Si el servidor esta funcionando mostrara este mensaje
-    return {
-        "mensaje": "AulaVoz Backend funcionando"
-    }
+app.include_router(router)
